@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Button;
+import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -18,7 +18,7 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
-import me.dm7.barcodescanner.zbar.ZBarScannerView;
+import java.util.List;
 
 /**
  * Created by H81 on 3/21/2017.
@@ -37,6 +37,8 @@ public class ScannerActivity extends AppCompatActivity {
 
     private boolean isScanned = false;
     private boolean isPreviewing = true;
+
+    private float mDist = 0;
 
     static {
         System.loadLibrary("iconv");
@@ -152,5 +154,70 @@ public class ScannerActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Camera.Parameters parameters = mCamera.getParameters();
+        int action = event.getAction();
+        if (event.getPointerCount() > 1) {
+            if (action == MotionEvent.ACTION_POINTER_DOWN) {
+                mDist = getFingerSpacing(event);
+            } else {
+                if (action == MotionEvent.ACTION_MOVE && parameters.isZoomSupported()) {
+                    mCamera.cancelAutoFocus();
+                    handleZoom(event, parameters);
+                }
+            }
+        } else {
+            if (action == MotionEvent.ACTION_UP) {
+                handleFocus(parameters);
+            }
+        }
+
+        return true;
+    }
+
+    private void handleZoom(MotionEvent event, Camera.Parameters params) {
+        int maxZoom = params.getMaxZoom();
+        int zoom = params.getZoom();
+        float newDist = getFingerSpacing(event);
+        if (newDist > mDist) {
+            //zoom in
+            if (zoom < maxZoom)
+                zoom++;
+        } else if (newDist < mDist) {
+            //zoom out
+            if (zoom > 0)
+                zoom--;
+        }
+        mDist = newDist;
+        params.setZoom(zoom);
+        mCamera.setParameters(params);
+    }
+
+    public void handleFocus(Camera.Parameters params) {
+//        int pointerId = event.getPointerId(0);
+//        int pointerIndex = event.findPointerIndex(pointerId);
+//        Get the pointer's current position
+//        float x = event.getX(pointerIndex);
+//        float y = event.getY(pointerIndex);
+
+        List<String> supportedFocusModes = params.getSupportedFocusModes();
+        if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean b, Camera camera) {
+                    Toast.makeText(ScannerActivity.this, "onAutoFocus()", Toast.LENGTH_SHORT).show();
+                    // currently set to auto-focus on single touch
+                }
+            });
+        }
+    }
+
+    private float getFingerSpacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float) Math.sqrt(x * x + y * y);
     }
 }
