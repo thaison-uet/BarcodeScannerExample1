@@ -144,7 +144,7 @@ public class ScannerActivity extends AppCompatActivity {
                 .setTitle("Kết quả")
                 .setCancelable(false)
                 .setMessage(message)
-                .setPositiveButton("Okie", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Toast.makeText(ScannerActivity.this, message, Toast.LENGTH_SHORT).show();
