@@ -194,12 +194,6 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     public void handleFocus(Camera.Parameters params) {
-//        int pointerId = event.getPointerId(0);
-//        int pointerIndex = event.findPointerIndex(pointerId);
-//        Get the pointer's current position
-//        float x = event.getX(pointerIndex);
-//        float y = event.getY(pointerIndex);
-
         List<String> supportedFocusModes = params.getSupportedFocusModes();
         if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
