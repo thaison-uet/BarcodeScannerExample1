@@ -30,14 +30,11 @@ public class ScannerActivity extends AppCompatActivity {
     private Handler autoFocusHandler;
     private Camera.PreviewCallback previewCallback;
     private Camera.AutoFocusCallback autoFocusCallback;
-
     private ImageScanner scanner;
-
     private FrameLayout previewLayout;
 
     private boolean isScanned = false;
     private boolean isPreviewing = true;
-
     private float mDist = 0;
 
     static {
