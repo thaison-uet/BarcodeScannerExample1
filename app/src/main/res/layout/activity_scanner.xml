@@ -10,9 +10,25 @@
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"></RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/fl_preview"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/rl_bottom"></FrameLayout>
+        android:layout_above="@id/rl_bottom">
+
+        <RelativeLayout
+            android:id="@+id/rl_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"></RelativeLayout>
+
+        <ImageView
+            android:id="@+id/iv_light"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="38dp"
+            android:src="@drawable/ic_light_on" />
+    </RelativeLayout>
+
 </RelativeLayout>

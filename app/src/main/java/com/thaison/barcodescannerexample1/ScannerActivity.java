@@ -1,15 +1,21 @@
 package com.thaison.barcodescannerexample1;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
-import android.widget.FrameLayout;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import net.sourceforge.zbar.Config;
@@ -24,14 +30,16 @@ import java.util.List;
  * Created by H81 on 3/21/2017.
  */
 
-public class ScannerActivity extends AppCompatActivity {
+public class ScannerActivity extends AppCompatActivity implements View.OnClickListener {
     private Camera mCamera;
     private CameraPreview mPreview;
     private Handler autoFocusHandler;
     private Camera.PreviewCallback previewCallback;
     private Camera.AutoFocusCallback autoFocusCallback;
+
     private ImageScanner scanner;
-    private FrameLayout previewLayout;
+    private RelativeLayout rl_preview;
+    private ImageView ivLight;
 
     private boolean isScanned = false;
     private boolean isPreviewing = true;
@@ -46,7 +54,22 @@ public class ScannerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
 
+        intiViews();
         initControl();
+    }
+
+    private void intiViews() {
+        rl_preview = (RelativeLayout) findViewById(R.id.rl_preview);
+        Display display = getWindowManager().getDefaultDisplay();
+        int width = display.getWidth() - 128;
+        int height = width;
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) rl_preview.getLayoutParams();
+        params.width = width;
+        params.height = height;
+        rl_preview.setLayoutParams(params);
+
+        ivLight = (ImageView) findViewById(R.id.iv_light);
+        ivLight.setOnClickListener(this);
     }
 
     private void initControl() {
@@ -71,9 +94,18 @@ public class ScannerActivity extends AppCompatActivity {
                 int result = scanner.scanImage(barcode);
 
                 if (result != 0) {
+                    // make vibrate
+
+                    Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    vibrator.vibrate(300);
+
+                    // sop previewing
+
                     isPreviewing = false;
                     mCamera.setPreviewCallback(null);
                     mCamera.stopPreview();
+
+                    // scan the result and show dialog
 
                     SymbolSet symbols = scanner.getResults();
                     for (Symbol symbol : symbols) {
@@ -101,8 +133,7 @@ public class ScannerActivity extends AppCompatActivity {
         };
 
         mPreview = new CameraPreview(this, mCamera, previewCallback, autoFocusCallback);
-        previewLayout = (FrameLayout) findViewById(R.id.fl_preview);
-        previewLayout.addView(mPreview);
+        rl_preview.addView(mPreview);
     }
 
     @Override
@@ -153,6 +184,8 @@ public class ScannerActivity extends AppCompatActivity {
                 .show();
     }
 
+    // zoom
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Camera.Parameters parameters = mCamera.getParameters();
@@ -179,11 +212,11 @@ public class ScannerActivity extends AppCompatActivity {
         int maxZoom = params.getMaxZoom();
         int zoom = params.getZoom();
         float newDist = getFingerSpacing(event);
-        if (newDist > mDist) {
+        if (newDist - 30 > mDist) {
             //zoom in
             if (zoom < maxZoom)
                 zoom++;
-        } else if (newDist < mDist) {
+        } else if (newDist + 30 < mDist) {
             //zoom out
             if (zoom > 0)
                 zoom--;
@@ -209,6 +242,16 @@ public class ScannerActivity extends AppCompatActivity {
     private float getFingerSpacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
+        Log.i("TAG", "newDist: " + (float) Math.sqrt(x * x + y * y) + "; mDist: " + mDist);
         return (float) Math.sqrt(x * x + y * y);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.iv_light:
+
+                break;
+        }
     }
 }
