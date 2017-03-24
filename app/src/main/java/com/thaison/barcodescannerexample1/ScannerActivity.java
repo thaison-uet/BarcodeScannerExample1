@@ -256,12 +256,10 @@ public class ScannerActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.iv_light:
                 Camera.Parameters params = mCamera.getParameters();
                 if (params.getFlashMode().equals(Camera.Parameters.FLASH_MODE_OFF)) {
-                    Log.i(TAG, "1");
                     ivLight.setImageResource(R.drawable.ic_light_off);
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                     mCamera.setParameters(params);
                 } else {
-                    Log.i(TAG, "2");
                     ivLight.setImageResource(R.drawable.ic_light_on);
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                     mCamera.setParameters(params);
